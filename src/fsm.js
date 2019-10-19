@@ -1,5 +1,7 @@
 class FSM {
     constructor(config) {
+        if (!config)
+            throw new Error("no config");
         this.initial = config.initial;
         this.allStates = config.states;
         this.state = this.initial;
