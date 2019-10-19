@@ -1,61 +1,66 @@
 class FSM {
-    /**
-     * Creates new FSM instance.
-     * @param config
-     */
-    constructor(config) {}
+    constructor(config) {
+        this.initial = config.initial;
+        this.allStates = config.states;
+        this.state = this.initial;
+        this.history = [];
+        this.buffer = [];
+    }
 
-    /**
-     * Returns active state.
-     * @returns {String}
-     */
-    getState() {}
+    getState() {
+        return this.state;
+    }
 
-    /**
-     * Goes to specified state.
-     * @param state
-     */
-    changeState(state) {}
+    changeState(state) {
+        if(this.allStates[state])
+        {
+            this.history.push(this.state);
+            this.state = state;
+            this.buffer = [];
+        }
+        else throw new Error ("state does not exist")
+    }
 
-    /**
-     * Changes state according to event transition rules.
-     * @param event
-     */
-    trigger(event) {}
+    trigger(event) {
+        let newState = this.allStates[this.state].transitions[event];
+        if(newState)
+            this.changeState(newState);
+        else throw new Error ("can not perform transition") 
+    }
 
-    /**
-     * Resets FSM state to initial.
-     */
-    reset() {}
+    reset() {
+        this.state = this.initial;
+    }
 
-    /**
-     * Returns an array of states for which there are specified event transition rules.
-     * Returns all states if argument is undefined.
-     * @param event
-     * @returns {Array}
-     */
-    getStates(event) {}
+    getStates(event) {
+        if(!event)
+            return Object.keys(this.allStates);
+        let arr = [];
+        for (let key in this.allStates)
+            if (this.allStates[key].transitions[event])
+              arr.push(key);
+        return arr;
+    }
 
-    /**
-     * Goes back to previous state.
-     * Returns false if undo is not available.
-     * @returns {Boolean}
-     */
-    undo() {}
+    undo() {
+        if(!this.history.length)
+            return false;
+        this.buffer.push(this.state);
+        this.state = this.history.pop();
+        return true;
+    }
 
-    /**
-     * Goes redo to state.
-     * Returns false if redo is not available.
-     * @returns {Boolean}
-     */
-    redo() {}
+    redo() {
+        if(!this.buffer.length)
+            return false;
+        this.history.push(this.state);    
+        this.state = this.buffer.pop();
+        return true;
+    }
 
-    /**
-     * Clears transition history
-     */
-    clearHistory() {}
+    clearHistory() {
+        this.history = [];
+    }
 }
 
 module.exports = FSM;
-
-/** @Created by Uladzimir Halushka **/
